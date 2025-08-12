@@ -7,8 +7,6 @@ function App() {
 
   return (
     <>
-      <h1>Filmoniq</h1>
-      {/* <Home /> */}
       <MoodSelector />
     </>
   );
