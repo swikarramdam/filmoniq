@@ -1,32 +1,48 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { GoogleGenAI } from "@google/genai";
+import MovieList from "./MovieList";
+import PromptInput from "./PromptInput";
+import useSpeechRecognition from "./useSpeechRecognition";
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 const tmdbApiKey = import.meta.env.VITE_TMDB_API_KEY;
-
 const ai = new GoogleGenAI({ apiKey });
 
-// Map mood adjectives to TMDB genre IDs
-const moodToGenre = {
-  happy: 35, // Comedy
-  sad: 18, // Drama
-  action: 28, // Action
-  scary: 27, // Horror
-  chill: 10749, // Romance (cool chill vibes)
-  // Add more moods and genres as you want
+const genreMap = {
+  action: 28,
+  adventure: 12,
+  comedy: 35,
+  drama: 18,
+  horror: 27,
+  romance: 10749,
+  thriller: 53,
+  "sci-fi": 878,
+  fantasy: 14,
+  mystery: 9648,
 };
 
 const MoodSelector = () => {
   const [loading, setLoading] = useState(false);
-  const [mood, setMood] = useState("");
+  const [mood, setMood] = useState([]);
   const [error, setError] = useState("");
   const [prompt, setPrompt] = useState("");
   const [movies, setMovies] = useState([]);
 
-  // Fetch movies from TMDB based on mood (genre)
-  const fetchMoviesByMood = async (moodTag) => {
-    const genreId = moodToGenre[moodTag.toLowerCase()] || 35; // default to Comedy
-    const url = `https://api.themoviedb.org/3/discover/movie?api_key=${tmdbApiKey}&with_genres=${genreId}&language=en-US&sort_by=popularity.desc&page=1`;
+  const {
+    transcript,
+    setTranscript,
+    listening,
+    startListening,
+    stopListening,
+  } = useSpeechRecognition();
+
+  const fetchMoviesByGenres = async (genres) => {
+    const genreIds = genres.map((g) => genreMap[g]).filter(Boolean);
+    if (genreIds.length === 0) throw new Error("No valid genres found");
+
+    const url = `https://api.themoviedb.org/3/discover/movie?api_key=${tmdbApiKey}&with_genres=${genreIds.join(
+      ","
+    )}&language=en-US&sort_by=popularity.desc&page=1`;
 
     const res = await fetch(url);
     if (!res.ok) throw new Error("Failed to fetch movies from TMDB");
@@ -37,24 +53,30 @@ const MoodSelector = () => {
   const fetchData = async () => {
     setError("");
     setMovies([]);
-    setMood("");
+    setMood([]);
     try {
       setLoading(true);
-      const moodPrompt = `Respond ONLY with one adjective that best describes the user's mood based on this input: "${prompt}".  
-No extra words, punctuation, or explanation—just one adjective like: happy
+
+      const moodPrompt = `
+User input: "${transcript}"
+Respond ONLY with a comma-separated list of 3 genres (from: Action, Comedy, Drama, Horror, Romance, Thriller, Sci-Fi, Adventure, Fantasy, Mystery).
+Example: Comedy, Romance, Drama
+No explanation, just the list.
 `;
+
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
         contents: moodPrompt,
       });
-      let Mood = response.text
-        .replace(/[^a-zA-Z]/g, "")
+
+      const genreList = response.text
         .toLowerCase()
-        .trim();
+        .split(",")
+        .map((g) => g.trim())
+        .filter(Boolean);
 
-      setMood(Mood);
-
-      const fetchedMovies = await fetchMoviesByMood(Mood);
+      setMood(genreList);
+      const fetchedMovies = await fetchMoviesByGenres(genreList);
       setMovies(fetchedMovies);
     } catch (error) {
       console.error("Error:", error);
@@ -65,50 +87,37 @@ No extra words, punctuation, or explanation—just one adjective like: happy
   };
 
   return (
-    <div style={{ maxWidth: "600px", margin: "auto", padding: "1rem" }}>
-      <textarea
-        placeholder="Enter your mood here"
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        style={{ width: "100%", height: "80px", padding: "0.5rem" }}
+    <div className="mx-auto max-w-3xl p-4 sm:p-6">
+      <PromptInput
+        prompt={transcript}
+        setPrompt={setTranscript}
+        listening={listening}
+        startListening={startListening}
+        stopListening={stopListening}
       />
+
       <br />
-      <button onClick={fetchData} disabled={loading || !prompt.trim()}>
-        {loading ? "Generating..." : "Generate"}
-      </button>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      {mood && <h2>Mood detected: {mood}</h2>}
-
-      <div>
-        {movies.length === 0 && !loading && mood && (
-          <p>No movies found for this mood.</p>
-        )}
-        {movies.map((movie) => (
-          <div
-            key={movie.id}
-            style={{
-              borderBottom: "1px solid #ddd",
-              marginBottom: "1rem",
-              paddingBottom: "1rem",
-            }}
-          >
-            <h3>{movie.title}</h3>
-            {movie.poster_path ? (
-              <img
-                src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
-                alt={movie.title}
-                style={{ borderRadius: "8px" }}
-              />
-            ) : (
-              <p>No image available</p>
-            )}
-            <p>Rating: {movie.vote_average} ⭐</p>
-            <p style={{ fontStyle: "italic" }}>{movie.overview}</p>
-          </div>
-        ))}
+      <div className="mt-4">
+        <button
+          onClick={fetchData}
+          disabled={loading || !transcript.trim()}
+          className="w-full rounded-lg bg-indigo-600 px-5 py-2 text-white 
+               hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? "Generating..." : "Generate"}
+        </button>
       </div>
+
+      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+      {mood.length > 0 && (
+        <h2 className="mt-6 text-base font-medium text-gray-700">
+          Genres detected:{" "}
+          <span className="font-semibold text-gray-900">{mood.join(", ")}</span>
+        </h2>
+      )}
+
+      <MovieList movies={movies} mood={mood} />
     </div>
   );
 };
