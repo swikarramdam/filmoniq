@@ -87,7 +87,7 @@ No explanation, just the list.
   };
 
   return (
-    <div className="mx-auto max-w-3xl p-4 sm:p-6">
+    <div className="mx-auto max-w-6xl w-full p-4 sm:p-6">
       <PromptInput
         prompt={transcript}
         setPrompt={setTranscript}
@@ -102,8 +102,8 @@ No explanation, just the list.
         <button
           onClick={fetchData}
           disabled={loading || !transcript.trim()}
-          className="w-full rounded-lg bg-indigo-600 px-5 py-2 text-white 
-               hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full rounded-lg bg-[#E50000] px-5 py-2 text-white 
+            hover:bg-[#FF1A1A] transition-all duration-200"
         >
           {loading ? "Generating..." : "Generate"}
         </button>
@@ -111,10 +111,19 @@ No explanation, just the list.
 
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
       {mood.length > 0 && (
-        <h2 className="mt-6 text-base font-medium text-gray-700">
-          Genres detected:{" "}
-          <span className="font-semibold text-gray-900">{mood.join(", ")}</span>
-        </h2>
+        <div className="mt-6 flex flex-wrap items-center gap-2">
+          <span className="text-white font-semibold text-lg">
+            Genres detected:
+          </span>
+          {mood.map((genre) => (
+            <span
+              key={genre}
+              className="bg-[#E50000] text-white text-sm font-medium px-3 py-1 rounded-full"
+            >
+              {genre.charAt(0).toUpperCase() + genre.slice(1)}
+            </span>
+          ))}
+        </div>
       )}
 
       <MovieList movies={movies} mood={mood} />
