@@ -1,6 +1,33 @@
-import React from "react";
-
+import React, { useEffect, useState } from "react";
+const STORAGE_KEY = "myMovies";
 const MovieList = ({ movies, mood }) => {
+  const [savedIds, setSavedIds] = useState([]);
+
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    setSavedIds(stored.map((movie) => movie.id));
+  }, []);
+
+  function saveToMyList(movie) {
+    let current = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    if (!Array.isArray(current)) {
+      current = []; // just in case something corrupts the data
+    }
+    if (current.some((m) => m.id === movie.id)) {
+      return;
+    }
+    const minimal = {
+      id: movie.id,
+      title: movie.title,
+      overview: movie.overview,
+      poster_path: movie.poster_path,
+      vote_average: movie.vote_average,
+    };
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([...current, minimal]));
+    setSavedIds([...savedIds, movie.id]);
+  }
+
   if (!movies || movies.length === 0) {
     return mood.length > 0 ? <p>No movies found for these genres.</p> : null;
   }
@@ -41,6 +68,28 @@ const MovieList = ({ movies, mood }) => {
           </p>
 
           <p className="italic text-gray-700 line-clamp-5">{movie.overview}</p>
+          {/* <button
+            onClick={() => saveToMyList(movie)}
+            className={`mt-3 w-full rounded-lg px-4 py-2 text-white ${
+              savedIds.includes(movie.id)
+                ? "bg-gray-400 cursor-not-allowed" // ⬅️ already saved
+                : "bg-green-600 hover:bg-green-700" // ⬅️ not saved
+            }`}
+            disabled={savedIds.includes(movie.id)} // ⬅️ disable button if saved
+          >
+            {savedIds.includes(movie.id) ? "✅ Added" : "➕ Add to My List"}
+          </button> */}
+          <button
+            onClick={() => saveToMyList(movie)}
+            className={`mt-3 w-full rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-00 ${
+              savedIds.includes(movie.id)
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-600 hover:bg-green-700"
+            }`}
+            disabled={savedIds.includes(movie.id)}
+          >
+            {savedIds.includes(movie.id) ? " ✅ Added" : "Add to my list"}
+          </button>
         </div>
       ))}
     </div>
