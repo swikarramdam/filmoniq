@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react"; //  Added useEffect & useRef for mic setup
 import { GoogleGenAI } from "@google/genai";
+// import { MicrophoneIcon, MicrophoneSlashIcon } from "@heroicons/react/24/solid";
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 const tmdbApiKey = import.meta.env.VITE_TMDB_API_KEY;
@@ -142,64 +143,108 @@ No explanation, just the list.
   };
 
   return (
-    <div style={{ maxWidth: "600px", margin: "auto", padding: "1rem" }}>
+    //   <div className="mx-auto max-w-3xl p-4 sm:p-6">
+    // <div className="rounded-2xl border bg-white/70 backdrop-blur shadow-md p-4 sm:p-6">
+
+    <div className="mx-auto max-w-3xl p-4 sm:p-6">
       {/* 🆕 Wrapped textarea + mic button in a flexbox */}
-      <div style={{ display: "flex", gap: "8px" }}>
+      <div>
         <textarea
           placeholder="Describe your movie genre or preference..."
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          style={{ width: "100%", height: "80px", padding: "0.5rem" }}
+          className="w-full h-24 resize-none rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
         />
         {/* 🆕 Mic button to start/stop speech recognition */}
         <button
           onClick={listening ? stopListening : startListening}
-          style={{
-            background: listening ? "red" : "green",
-            color: "#fff",
-            padding: "10px",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-          }}
+          className={` rounded-lg px-3 py-2 text-white 
+              ${
+                listening
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "bg-green-600 hover:bg-green-700"
+              }`}
         >
-          {listening ? "Stop" : "🎤"}
+          {listening ? "Stop" : "Speak"}
         </button>
       </div>
 
       <br />
-      <button onClick={fetchData} disabled={loading || !prompt.trim()}>
+      <div className="mt-4">
+        {/* <button
+    onClick={fetchData}
+    disabled={loading || !prompt.trim()}
+    className="rounded-lg bg-indigo-600 px-5 py-2 text-white 
+               hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    {loading ? "Generating..." : "Generate"}
+  </button>
+  */}
+      </div>
+
+      <button
+        onClick={fetchData}
+        disabled={loading || !prompt.trim()}
+        className="rounded-lg bg-indigo-600 px-5 py-2 text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
         {loading ? "Generating..." : "Generate"}
       </button>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {mood.length > 0 && <h2>Genres detected: {mood.join(", ")}</h2>}
+      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+      {mood.length > 0 && (
+        <h2 className="mt-6 text-base font-medium text-gray-700">
+          Genres detected:{" "}
+          <span className="font-semibold text-gray-900">{mood.join(", ")}</span>
+        </h2>
+      )}
 
-      <div>
+      <div className="mt-6 grid gap-6 sm:grid-cols-2 md:grid-cols-3">
         {movies.length === 0 && !loading && mood.length > 0 && (
           <p>No movies found for these genres.</p>
         )}
         {movies.map((movie) => (
           <div
             key={movie.id}
-            style={{
-              borderBottom: "1px solid #ddd",
-              marginBottom: "1rem",
-              paddingBottom: "1rem",
-            }}
+            className="rounded-lg border border-gray-300 p-4 shadow-sm hover:shadow-md transition-shadow"
           >
-            <h3>{movie.title}</h3>
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+              {movie.title}
+            </h3>
+            {/* <div className="flex flex-wrap gap-2 mb-3">
+              {mood.map((genre) => (
+                <span
+                  key={genre}
+                  className="bg-indigo-100 text-indigo-800 text-xs font-medium px-2 py-1 rounded-full"
+                >
+                  {genre.charAt(0).toUpperCase() + genre.slice(1)}
+                </span>
+              ))}
+            </div> */}
+            <div className="flex flex-wrap gap-2 mb-3">
+              {mood.map((genre) => (
+                <span
+                  key={genre}
+                  className="bg-indigo-100 text-indigo-800 text-xs font-medium px-2 py-1 rounded-full"
+                >
+                  {genre.charAt(0).toUpperCase() + genre.slice(1)}
+                </span>
+              ))}
+            </div>
             {movie.poster_path ? (
               <img
                 src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
                 alt={movie.title}
-                style={{ borderRadius: "8px" }}
+                className="mb-3 rounded-lg shadow-md"
               />
             ) : (
-              <p>No image available</p>
+              <p mb-3 italic text-gray-500>
+                No image available
+              </p>
             )}
-            <p>Rating: {movie.vote_average} ⭐</p>
-            <p style={{ fontStyle: "italic" }}>{movie.overview}</p>
+            <p className="mb-1 font-medium text-yellow-600">
+              Rating: {movie.vote_average} ⭐
+            </p>
+            <p className="italic text-gray-700">{movie.overview}</p>
           </div>
         ))}
       </div>

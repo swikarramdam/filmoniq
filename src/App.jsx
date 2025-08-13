@@ -2,6 +2,8 @@ import { useState } from "react";
 import PlaylistDisplay from "./PlaylistDisplay";
 import MoodSelector from "./MoodSelector";
 import Home from "./Home";
+import "./index.css";
+
 function App() {
   const [count, setCount] = useState(0);
 
