@@ -15,7 +15,7 @@ const MyMovies = () => {
   };
 
   if (movies.length === 0) {
-    <div className="p-4">
+    <div className="mx-auto max-w-6xl w-full p-4 sm:p-">
       <h1 className="text-xl font-bold">My Movies</h1>
       <p className="text-gray-600 mt-2">No Movies saved yet</p>
     </div>;
@@ -23,21 +23,26 @@ const MyMovies = () => {
   return (
     <div className="p-4">
       <h1 className="text-xl font-bold">My Movies</h1>
-      <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3">
+      <div className="mt-6 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {movies.map((movie) => (
           <div
             key={movie.id}
-            className="rounded-lg border border-gray-300 p-4 shadow-sm"
+            className="rounded-lg bg-[#1E1E1E] border border-[#333333] p-4 shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 min-h-[600px] flex flex-col"
           >
-            <h3 className="mb-2 text-lg font-semibold">{movie.title}</h3>
+            <h3 className="mb-3 text-lg font-semibold text-white">
+              {movie.title}
+            </h3>
             {movie.poster_path && (
               <img
-                src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
+                src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
                 alt={movie.title}
-                className="mb-3 rounded-lg"
+                className="mb-3 rounded-lg shadow-lg w-full h-[350px] object-cover"
               />
             )}
-            <p className="italic text-gray-700 line-clamp-5">
+            <p className="mb-2 font-medium text-white">
+              Rating: {movie.vote_average.toFixed(1)} ⭐
+            </p>
+            <p className="mb-4 italic text-white line-clamp-5">
               {movie.overview}
             </p>
             <button
