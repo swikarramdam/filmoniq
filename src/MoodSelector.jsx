@@ -1,12 +1,10 @@
-import React, { useState, useEffect, useRef } from "react"; //  Added useEffect & useRef for mic setup
+import React, { useState, useEffect, useRef } from "react";
 import { GoogleGenAI } from "@google/genai";
-// import { MicrophoneIcon, MicrophoneSlashIcon } from "@heroicons/react/24/solid";
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 const tmdbApiKey = import.meta.env.VITE_TMDB_API_KEY;
 const ai = new GoogleGenAI({ apiKey });
 
-// Map TMDB genre names to IDs
 const genreMap = {
   action: 28,
   adventure: 12,
@@ -29,7 +27,6 @@ const MoodSelector = () => {
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef(null);
 
-  // 🆕 Setup speech recognition when component mounts
   useEffect(() => {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -42,7 +39,7 @@ const MoodSelector = () => {
     const recognition = new SpeechRecognition();
     recognition.lang = "en-US";
     recognition.interimResults = true;
-    recognition.continuous = true; // keep it open
+    recognition.continuous = true;
 
     recognition.onresult = (event) => {
       let transcript = "";
@@ -143,12 +140,8 @@ No explanation, just the list.
   };
 
   return (
-    //   <div className="mx-auto max-w-3xl p-4 sm:p-6">
-    // <div className="rounded-2xl border bg-white/70 backdrop-blur shadow-md p-4 sm:p-6">
-
     <div className="mx-auto max-w-3xl p-4 sm:p-6">
-      {/* 🆕 Wrapped textarea + mic button in a flexbox */}
-      <div>
+      <div className="flex gap-0 overflow-hidden rounded-xl border border-gray-300">
         <textarea
           placeholder="Describe your movie genre or preference..."
           value={prompt}
@@ -170,25 +163,17 @@ No explanation, just the list.
       </div>
 
       <br />
-      <div className="mt-4">
-        {/* <button
-    onClick={fetchData}
-    disabled={loading || !prompt.trim()}
-    className="rounded-lg bg-indigo-600 px-5 py-2 text-white 
-               hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
-  >
-    {loading ? "Generating..." : "Generate"}
-  </button>
-  */}
-      </div>
 
-      <button
-        onClick={fetchData}
-        disabled={loading || !prompt.trim()}
-        className="rounded-lg bg-indigo-600 px-5 py-2 text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {loading ? "Generating..." : "Generate"}
-      </button>
+      <div className="mt-4">
+        <button
+          onClick={fetchData}
+          disabled={loading || !prompt.trim()}
+          className="w-full rounded-lg bg-indigo-600 px-5 py-2 text-white 
+               hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? "Generating..." : "Generate"}
+        </button>
+      </div>
 
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
       {mood.length > 0 && (
@@ -205,21 +190,11 @@ No explanation, just the list.
         {movies.map((movie) => (
           <div
             key={movie.id}
-            className="rounded-lg border border-gray-300 p-4 shadow-sm hover:shadow-md transition-shadow"
+            className="rounded-lg border border-gray-300 p-4 shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
           >
             <h3 className="mb-2 text-lg font-semibold text-gray-900">
               {movie.title}
             </h3>
-            {/* <div className="flex flex-wrap gap-2 mb-3">
-              {mood.map((genre) => (
-                <span
-                  key={genre}
-                  className="bg-indigo-100 text-indigo-800 text-xs font-medium px-2 py-1 rounded-full"
-                >
-                  {genre.charAt(0).toUpperCase() + genre.slice(1)}
-                </span>
-              ))}
-            </div> */}
             <div className="flex flex-wrap gap-2 mb-3">
               {mood.map((genre) => (
                 <span
@@ -242,9 +217,12 @@ No explanation, just the list.
               </p>
             )}
             <p className="mb-1 font-medium text-yellow-600">
-              Rating: {movie.vote_average} ⭐
+              Rating: {movie.vote_average.toFixed(1)} ⭐
             </p>
-            <p className="italic text-gray-700">{movie.overview}</p>
+
+            <p className="italic text-gray-700 line-clamp-5">
+              {movie.overview}
+            </p>
           </div>
         ))}
       </div>
