@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { GoogleGenAI } from "@google/genai";
+import MovieList from "./MovieList";
+import PromptInput from "./PromptInput";
+import useSpeechRecognition from "./useSpeechRecognition";
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 const tmdbApiKey = import.meta.env.VITE_TMDB_API_KEY;
@@ -24,70 +27,14 @@ const MoodSelector = () => {
   const [error, setError] = useState("");
   const [prompt, setPrompt] = useState("");
   const [movies, setMovies] = useState([]);
-  const [listening, setListening] = useState(false);
-  const recognitionRef = useRef(null);
 
-  useEffect(() => {
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
-
-    if (!SpeechRecognition) {
-      console.warn("The browser doesn't support speech recognition");
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = "en-US";
-    recognition.interimResults = true;
-    recognition.continuous = true;
-
-    recognition.onresult = (event) => {
-      let transcript = "";
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        transcript += event.results[i][0].transcript;
-      }
-      setPrompt(transcript);
-    };
-
-    recognition.onerror = (event) => {
-      console.error("Speech recognition error:", event.error);
-      if (
-        event.error === "not-allowed" ||
-        event.error === "service-not-allowed"
-      ) {
-        setListening(false);
-      }
-    };
-
-    recognition.onend = () => {
-      if (listening) {
-        try {
-          recognition.start();
-          listening;
-        } catch (e) {
-          console.error("Failed to restart recognition:", e);
-        }
-      }
-    };
-
-    recognitionRef.current = recognition;
-
-    if (listening) {
-      recognition.start();
-    }
-
-    return () => {
-      recognition.stop();
-    };
-  }, [listening]);
-
-  const startListening = () => {
-    setListening(true);
-  };
-
-  const stopListening = () => {
-    setListening(false);
-  };
+  const {
+    transcript,
+    setTranscript,
+    listening,
+    startListening,
+    stopListening,
+  } = useSpeechRecognition();
 
   const fetchMoviesByGenres = async (genres) => {
     const genreIds = genres.map((g) => genreMap[g]).filter(Boolean);
@@ -111,7 +58,7 @@ const MoodSelector = () => {
       setLoading(true);
 
       const moodPrompt = `
-User input: "${prompt}"
+User input: "${transcript}"
 Respond ONLY with a comma-separated list of 3 genres (from: Action, Comedy, Drama, Horror, Romance, Thriller, Sci-Fi, Adventure, Fantasy, Mystery).
 Example: Comedy, Romance, Drama
 No explanation, just the list.
@@ -141,33 +88,20 @@ No explanation, just the list.
 
   return (
     <div className="mx-auto max-w-3xl p-4 sm:p-6">
-      <div className="flex gap-0 overflow-hidden rounded-xl border border-gray-300">
-        <textarea
-          placeholder="Describe your movie genre or preference..."
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          className="w-full h-24 resize-none rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
-        />
-        {/* 🆕 Mic button to start/stop speech recognition */}
-        <button
-          onClick={listening ? stopListening : startListening}
-          className={` rounded-lg px-3 py-2 text-white 
-              ${
-                listening
-                  ? "bg-red-600 hover:bg-red-700"
-                  : "bg-green-600 hover:bg-green-700"
-              }`}
-        >
-          {listening ? "Stop" : "Speak"}
-        </button>
-      </div>
+      <PromptInput
+        prompt={transcript}
+        setPrompt={setTranscript}
+        listening={listening}
+        startListening={startListening}
+        stopListening={stopListening}
+      />
 
       <br />
 
       <div className="mt-4">
         <button
           onClick={fetchData}
-          disabled={loading || !prompt.trim()}
+          disabled={loading || !transcript.trim()}
           className="w-full rounded-lg bg-indigo-600 px-5 py-2 text-white 
                hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
@@ -183,49 +117,7 @@ No explanation, just the list.
         </h2>
       )}
 
-      <div className="mt-6 grid gap-6 sm:grid-cols-2 md:grid-cols-3">
-        {movies.length === 0 && !loading && mood.length > 0 && (
-          <p>No movies found for these genres.</p>
-        )}
-        {movies.map((movie) => (
-          <div
-            key={movie.id}
-            className="rounded-lg border border-gray-300 p-4 shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
-          >
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
-              {movie.title}
-            </h3>
-            <div className="flex flex-wrap gap-2 mb-3">
-              {mood.map((genre) => (
-                <span
-                  key={genre}
-                  className="bg-indigo-100 text-indigo-800 text-xs font-medium px-2 py-1 rounded-full"
-                >
-                  {genre.charAt(0).toUpperCase() + genre.slice(1)}
-                </span>
-              ))}
-            </div>
-            {movie.poster_path ? (
-              <img
-                src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
-                alt={movie.title}
-                className="mb-3 rounded-lg shadow-md"
-              />
-            ) : (
-              <p mb-3 italic text-gray-500>
-                No image available
-              </p>
-            )}
-            <p className="mb-1 font-medium text-yellow-600">
-              Rating: {movie.vote_average.toFixed(1)} ⭐
-            </p>
-
-            <p className="italic text-gray-700 line-clamp-5">
-              {movie.overview}
-            </p>
-          </div>
-        ))}
-      </div>
+      <MovieList movies={movies} mood={mood} />
     </div>
   );
 };

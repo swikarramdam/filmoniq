@@ -1,5 +1,5 @@
 import { useState } from "react";
-import PlaylistDisplay from "./PlaylistDisplay";
+import PlaylistDisplay from "./MovieList";
 import MoodSelector from "./MoodSelector";
 import Home from "./Home";
 import "./index.css";
