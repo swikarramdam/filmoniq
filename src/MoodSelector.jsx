@@ -98,14 +98,14 @@ No explanation, just the list.
 
       <br />
 
-      <div className="mt-4">
+      <div className="mt-2">
         <button
           onClick={fetchData}
           disabled={loading || !transcript.trim()}
           className="w-full rounded-lg bg-[#E50000] px-5 py-2 text-white 
-            hover:bg-[#FF1A1A] transition-all duration-200"
+            hover:bg-[#FF1A1A] transition-all duration-200 font-bold"
         >
-          {loading ? "Generating..." : "Generate"}
+          {loading ? "Recommending..." : "Recommend"}
         </button>
       </div>
 

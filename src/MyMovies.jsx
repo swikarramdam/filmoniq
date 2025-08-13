@@ -4,7 +4,7 @@ const STORAGE_KEY = "myMovies";
 const MyMovies = () => {
   const [movies, setMovies] = useState([]);
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY || "[]"));
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
     setMovies(stored);
   }, []);
 
@@ -15,10 +15,12 @@ const MyMovies = () => {
   };
 
   if (movies.length === 0) {
-    <div className="mx-auto max-w-6xl w-full p-4 sm:p-">
-      <h1 className="text-xl font-bold">My Movies</h1>
-      <p className="text-gray-600 mt-2">No Movies saved yet</p>
-    </div>;
+    return (
+      <div className="mx-auto max-w-6xl w-full p-4 sm:p-">
+        <h1 className="text-xl font-bold">My Movies</h1>
+        <p className="text-gray-600 mt-2">No Movies saved yet</p>
+      </div>
+    );
   }
   return (
     <div className="p-4">
