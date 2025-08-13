@@ -28,7 +28,7 @@ function App() {
                 to="/"
                 className={({ isActive }) =>
                   isActive
-                    ? "font-fontextrabold underline decoration-[#E50000]"
+                    ? "font-bold underline decoration-[#E50000]"
                     : "hover:text-[#E50000] transition-colors text-bold"
                 }
               >
