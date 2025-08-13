@@ -1,21 +1,23 @@
 import React, { useEffect, useState } from "react";
+
 const STORAGE_KEY = "myMovies";
+
 const MovieList = ({ movies, mood }) => {
   const [savedIds, setSavedIds] = useState([]);
+
+  const [selectedMovie, setSelectedMovie] = useState(null);
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
     setSavedIds(stored.map((movie) => movie.id));
   }, []);
 
+  // 🔹 Save movie to My List
   function saveToMyList(movie) {
     let current = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-    if (!Array.isArray(current)) {
-      current = []; // just in case something corrupts the data
-    }
-    if (current.some((m) => m.id === movie.id)) {
-      return;
-    }
+    if (!Array.isArray(current)) current = [];
+    if (current.some((m) => m.id === movie.id)) return;
+
     const minimal = {
       id: movie.id,
       title: movie.title,
@@ -33,59 +35,119 @@ const MovieList = ({ movies, mood }) => {
   }
 
   return (
-    <div className="mt-6 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-      {movies.map((movie) => (
-        <div
-          key={movie.id}
-          className="rounded-lg bg-[#1E1E1E] border border-[#333333] p-4 shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200"
-        >
-          <h3 className="mb-3 text-lg font-semibold text-white">
-            {movie.title}
-          </h3>
-
-          <div className="flex flex-wrap gap-2 mb-4">
-            {mood.map((genre) => (
-              <span
-                key={genre}
-                className="bg-[#E50000] text-white text-xs font-medium px-2 py-1 rounded-full"
-              >
-                {genre.charAt(0).toUpperCase() + genre.slice(1)}
-              </span>
-            ))}
-          </div>
-
-          {movie.poster_path ? (
-            <img
-              src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
-              alt={movie.title}
-              className="mb-3 rounded-lg shadow-lg w-full h-[350px] object-cover"
-            />
-          ) : (
-            <p className="mb-3 italic text-gray-400">No image available</p>
-          )}
-
-          <p className="mb-2 font-medium text-white">
-            Rating: {movie.vote_average.toFixed(1)} ⭐
-          </p>
-
-          <p className="mb-4 italic text-white line-clamp-5">
-            {movie.overview}
-          </p>
-
-          <button
-            onClick={() => saveToMyList(movie)}
-            className={`mt-3 w-full rounded-lg px-4 py-2 text-white transition-all duration-200 ${
-              savedIds.includes(movie.id)
-                ? "bg-gray-600 cursor-not-allowed"
-                : "bg-[#E50000] hover:bg-[#FF1A1A]"
-            }`}
-            disabled={savedIds.includes(movie.id)}
+    <>
+      {/* 🔹 Movie Grid */}
+      <div className="mt-6 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {movies.map((movie) => (
+          <div
+            key={movie.id}
+            onClick={() => setSelectedMovie(movie)}
+            className="rounded-lg bg-[#1E1E1E] border border-[#333333] p-4 shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 cursor-pointer flex flex-col"
           >
-            {savedIds.includes(movie.id) ? " ✅ Added" : "Add to my list"}
-          </button>
+            <h3 className="mb-3 text-lg font-semibold text-white">
+              {movie.title}
+            </h3>
+
+            <div className="flex flex-wrap gap-2 mb-4">
+              {mood.map((genre) => (
+                <span
+                  key={genre}
+                  className="bg-[#E50000] text-white text-xs font-medium px-2 py-1 rounded-full"
+                >
+                  {genre.charAt(0).toUpperCase() + genre.slice(1)}
+                </span>
+              ))}
+            </div>
+
+            {movie.poster_path ? (
+              <img
+                src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
+                alt={movie.title}
+                className="mb-3 rounded-lg shadow-lg w-full h-[350px] object-cover"
+              />
+            ) : (
+              <p className="mb-3 italic text-gray-400">No image available</p>
+            )}
+
+            <p className="mb-2 font-medium text-white">
+              Rating: {movie.vote_average.toFixed(1)} ⭐
+            </p>
+
+            <p className="mb-4 italic text-white line-clamp-5">
+              {movie.overview}
+            </p>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation(); //
+                saveToMyList(movie);
+              }}
+              className={`w-full rounded-lg px-4 py-2 text-white transition-all duration-200 ${
+                savedIds.includes(movie.id)
+                  ? "bg-gray-600 cursor-not-allowed"
+                  : "bg-[#E50000] hover:bg-[#FF1A1A]"
+              }`}
+              disabled={savedIds.includes(movie.id)}
+            >
+              {savedIds.includes(movie.id) ? " ✅ Added" : "Add to my list"}
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {selectedMovie && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
+          onClick={() => setSelectedMovie(null)} // click anywhere outside(div behind our modal) closes modal
+        >
+          <div
+            className="bg-[#141414] text-white rounded-lg p-6 max-w-3xl w-full overflow-y-auto relative flex gap-6"
+            onClick={(e) => e.stopPropagation()} // click inside modal does NOT close as the propagation is stopped immediatelly
+          >
+            {/* 🔹 Left: Poster */}
+            {selectedMovie.poster_path && (
+              <img
+                src={`https://image.tmdb.org/t/p/w500${selectedMovie.poster_path}`}
+                alt={selectedMovie.title}
+                className="rounded-lg w-1/3 h-auto object-cover"
+              />
+            )}
+
+            {/* 🔹 Right: Details */}
+            <div className="flex-1 flex flex-col">
+              {/* 🔹 Close button */}
+              <button
+                onClick={() => setSelectedMovie(null)}
+                className="absolute top-2 right-2 text-red-500 text-2xl"
+              >
+                ×
+              </button>
+
+              <h2 className="text-3xl font-bold mb-4">{selectedMovie.title}</h2>
+              <p className="mb-2 font-medium">
+                Rating: {selectedMovie.vote_average} ⭐
+              </p>
+              <p className="text-gray-300 mb-4">{selectedMovie.overview}</p>
+
+              {/* 🔹 Add to My List button inside modal */}
+              <button
+                onClick={() => saveToMyList(selectedMovie)}
+                className={`w-full rounded-lg px-4 py-2 text-white transition-all duration-200 ${
+                  savedIds.includes(selectedMovie.id)
+                    ? "bg-gray-600 cursor-not-allowed"
+                    : "bg-[#E50000] hover:bg-[#FF1A1A]"
+                }`}
+                disabled={savedIds.includes(selectedMovie.id)}
+              >
+                {savedIds.includes(selectedMovie.id)
+                  ? " ✅ Added"
+                  : "Add to my list"}
+              </button>
+            </div>
+          </div>
         </div>
-      ))}
-    </div>
+      )}
+    </>
   );
 };
 
