@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 const STORAGE_KEY = "myMovies";
 
-const MovieList = ({ movies, mood }) => {
+const MovieList = ({ movies, genres, loading }) => {
   const [savedIds, setSavedIds] = useState([]);
 
   const [selectedMovie, setSelectedMovie] = useState(null);
@@ -30,13 +30,41 @@ const MovieList = ({ movies, mood }) => {
     setSavedIds([...savedIds, movie.id]);
   }
 
+  if (loading) {
+    // Show 6 skeleton cards
+    return (
+      <div className="mt-6 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div
+            key={i}
+            className="rounded-lg bg-[#1E1E1E] p-4 shadow-md animate-pulse flex flex-col"
+          >
+            <div className="bg-gray-700 h-48 w-full mb-3 rounded-lg"></div>{" "}
+            {/* poster */}
+            <div className="h-6 bg-gray-600 rounded mb-2 w-3/4"></div>{" "}
+            {/* title */}
+            <div className="h-4 bg-gray-600 rounded mb-1 w-1/2"></div>{" "}
+            {/* rating */}
+            <div className="h-3 bg-gray-600 rounded mb-1 w-full"></div>{" "}
+            {/* overview line 1 */}
+            <div className="h-3 bg-gray-600 rounded mb-1 w-full"></div>{" "}
+            {/* overview line 2 */}
+            <div className="h-3 bg-gray-600 rounded mb-1 w-5/6"></div>{" "}
+            {/* overview line 3 */}
+            <div className="mt-auto h-8 bg-gray-700 rounded w-full"></div>{" "}
+            {/* button */}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   if (!movies || movies.length === 0) {
-    return mood.length > 0 ? <p>No movies found for these genres.</p> : null;
+    return genres.length > 0 ? <p>No movies found for these genres.</p> : null;
   }
 
   return (
     <>
-      {/* 🔹 Movie Grid */}
       <div className="mt-6 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {movies.map((movie) => (
           <div
@@ -49,7 +77,7 @@ const MovieList = ({ movies, mood }) => {
             </h3>
 
             <div className="flex flex-wrap gap-2 mb-4">
-              {mood.map((genre) => (
+              {genres.map((genre) => (
                 <span
                   key={genre}
                   className="bg-[#E50000] text-white text-xs font-medium px-2 py-1 rounded-full"
