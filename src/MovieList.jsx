@@ -34,7 +34,7 @@ const MovieList = ({ movies, genres, loading }) => {
     // Show 6 skeleton cards
     return (
       <div className="mt-6 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {Array.from({ length: 6 }).map((_, i) => (
+        {Array.from({ length: 8 }).map((_, i) => (
           <div
             key={i}
             className="rounded-lg bg-[#1E1E1E] p-4 shadow-md animate-pulse flex flex-col"
