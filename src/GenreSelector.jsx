@@ -72,28 +72,39 @@ const GenreSelector = () => {
     setGenres([]);
     try {
       setLoading(true);
+      let genreList = [];
+      if (!transcript && transcript.trim() === "") {
+        const past = getPastGenres();
+        if (past) {
+          genreList = past;
+        } else {
+          genreList = ["action", "comedy", "drama"];
+        }
+      } else {
+        const genrePrompt = `
+    User input: "${transcript}"
+    Choose 3 movie genres that match the user's input.
+    You can pick from any of these genres: Action, Adventure, Comedy, Drama, Horror, Romance, Thriller, Sci-Fi, Fantasy, Mystery, Documentary, Animation, Family, History, War, Western, Music, TV-Movie, News, Reality, Talk, Soap, Game-Show, Variety, Foreign, Music-Video.
+    Respond ONLY with a comma-separated list of 3 genres from this list.
+    No explanation, just the list.
+    Example: Comedy, Romance, Drama
+    `;
 
-      const genrePrompt = `
-User input: "${transcript}"
-Choose 3 movie genres that match the user's genres.
-You can pick from any of these genres: Action, Adventure, Comedy, Drama, Horror, Romance, Thriller, Sci-Fi, Fantasy, Mystery, Documentary, Animation, Family, History, War, Western, Music, TV-Movie, News, Reality, Talk, Soap, Game-Show, Variety, Foreign, Music-Video.
-Respond ONLY with a comma-separated list of 3 genres from this list.
-No explanation, just the list.
-Example: Comedy, Romance, Drama
-`;
+        const response = await ai.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: genrePrompt,
+        });
 
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: genrePrompt,
-      });
-
-      const genreList = response.text
-        .toLowerCase()
-        .split(",")
-        .map((g) => g.trim())
-        .filter(Boolean);
+        genreList = response.text
+          .toLowerCase()
+          .split(",")
+          .map((g) => g.trim())
+          .filter(Boolean);
+      }
 
       setGenres(genreList);
+      savePastGenres(genreList);
+
       const fetchedMovies = await fetchMoviesByGenres(genreList);
       setMovies(fetchedMovies);
     } catch (error) {
@@ -104,6 +115,14 @@ Example: Comedy, Romance, Drama
     }
   };
 
+  const PAST_GENRES_KEY = "pastGenres";
+  const getPastGenres = () => {
+    const stored = JSON.parse(localStorage.getItem(PAST_GENRES_KEY) || "[]");
+    return stored.length > 0 ? stored : null;
+  };
+  const savePastGenres = () => {
+    localStorage.setItem(PAST_GENRES_KEY, JSON.stringify(genres));
+  };
   return (
     <div className="mx-auto max-w-6xl w-full p-4 sm:p-6">
       <PromptInput
@@ -119,7 +138,7 @@ Example: Comedy, Romance, Drama
       <div className="mt-2">
         <button
           onClick={fetchData}
-          disabled={loading || !transcript.trim()}
+          disabled={loading}
           className="w-full rounded-lg bg-[#E50000] px-5 py-2 text-white 
             hover:bg-[#FF1A1A] transition-all duration-200 font-bold"
         >
