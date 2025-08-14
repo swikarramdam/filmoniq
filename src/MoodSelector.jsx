@@ -19,6 +19,22 @@ const genreMap = {
   "sci-fi": 878,
   fantasy: 14,
   mystery: 9648,
+  "tv-movie": 10770,
+  documentary: 99,
+  "music-video": 10402,
+  foreign: 10769,
+  history: 36,
+  war: 10752,
+  western: 37,
+  animation: 16,
+  family: 10751,
+  music: 10402,
+  news: 100,
+  reality: 10764,
+  talk: 10767,
+  soap: 110,
+  "game-show": 10763,
+  variety: 10766,
 };
 
 const MoodSelector = () => {
@@ -59,9 +75,11 @@ const MoodSelector = () => {
 
       const moodPrompt = `
 User input: "${transcript}"
-Respond ONLY with a comma-separated list of 3 genres (from: Action, Comedy, Drama, Horror, Romance, Thriller, Sci-Fi, Adventure, Fantasy, Mystery).
-Example: Comedy, Romance, Drama
+Choose 3 movie genres that match the user's mood.
+You can pick from any of these genres: Action, Adventure, Comedy, Drama, Horror, Romance, Thriller, Sci-Fi, Fantasy, Mystery, Documentary, Animation, Family, History, War, Western, Music, TV-Movie, News, Reality, Talk, Soap, Game-Show, Variety, Foreign, Music-Video.
+Respond ONLY with a comma-separated list of 3 genres from this list.
 No explanation, just the list.
+Example: Comedy, Romance, Drama
 `;
 
       const response = await ai.models.generateContent({
