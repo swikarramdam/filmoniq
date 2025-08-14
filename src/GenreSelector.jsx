@@ -120,8 +120,8 @@ const GenreSelector = () => {
     const stored = JSON.parse(localStorage.getItem(PAST_GENRES_KEY) || "[]");
     return stored.length > 0 ? stored : null;
   };
-  const savePastGenres = () => {
-    localStorage.setItem(PAST_GENRES_KEY, JSON.stringify(genres));
+  const savePastGenres = (list) => {
+    localStorage.setItem(PAST_GENRES_KEY, JSON.stringify(list));
   };
   return (
     <div className="mx-auto max-w-6xl w-full p-4 sm:p-6">

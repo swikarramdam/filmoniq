@@ -31,7 +31,7 @@ const MovieList = ({ movies, genres, loading }) => {
   }
 
   if (loading) {
-    // Show 6 skeleton cards
+    // Show 8 skeleton cards
     return (
       <div className="mt-6 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {Array.from({ length: 8 }).map((_, i) => (
