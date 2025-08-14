@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import MoodSelector from "./MoodSelector";
+import GenreSelector from "./GenreSelector";
 import MovieList from "./MovieList";
 
 const tmdbApiKey = import.meta.env.VITE_TMDB_API_KEY;
@@ -24,13 +24,12 @@ const Home = () => {
 
   return (
     <div className="mx-auto max-w-6xl p-4 sm:p-6">
-      <MoodSelector />
+      <GenreSelector />
 
-      {/* Trending Section */}
       {trending.length > 0 && (
         <div className="mt-10">
           <h2 className="text-xl font-bold text-white mb-4">Trending Now</h2>
-          <MovieList movies={trending} mood={[]} />
+          <MovieList movies={trending} genres={[]} loading={false} />
         </div>
       )}
     </div>

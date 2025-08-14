@@ -37,9 +37,9 @@ const genreMap = {
   variety: 10766,
 };
 
-const MoodSelector = () => {
+const GenreSelector = () => {
   const [loading, setLoading] = useState(false);
-  const [mood, setMood] = useState([]);
+  const [genres, setGenres] = useState([]);
   const [error, setError] = useState("");
   const [prompt, setPrompt] = useState("");
   const [movies, setMovies] = useState([]);
@@ -69,13 +69,13 @@ const MoodSelector = () => {
   const fetchData = async () => {
     setError("");
     setMovies([]);
-    setMood([]);
+    setGenres([]);
     try {
       setLoading(true);
 
-      const moodPrompt = `
+      const genrePrompt = `
 User input: "${transcript}"
-Choose 3 movie genres that match the user's mood.
+Choose 3 movie genres that match the user's genres.
 You can pick from any of these genres: Action, Adventure, Comedy, Drama, Horror, Romance, Thriller, Sci-Fi, Fantasy, Mystery, Documentary, Animation, Family, History, War, Western, Music, TV-Movie, News, Reality, Talk, Soap, Game-Show, Variety, Foreign, Music-Video.
 Respond ONLY with a comma-separated list of 3 genres from this list.
 No explanation, just the list.
@@ -84,7 +84,7 @@ Example: Comedy, Romance, Drama
 
       const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
-        contents: moodPrompt,
+        contents: genrePrompt,
       });
 
       const genreList = response.text
@@ -93,7 +93,7 @@ Example: Comedy, Romance, Drama
         .map((g) => g.trim())
         .filter(Boolean);
 
-      setMood(genreList);
+      setGenres(genreList);
       const fetchedMovies = await fetchMoviesByGenres(genreList);
       setMovies(fetchedMovies);
     } catch (error) {
@@ -128,12 +128,12 @@ Example: Comedy, Romance, Drama
       </div>
 
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-      {mood.length > 0 && (
+      {genres.length > 0 && (
         <div className="mt-6 flex flex-wrap items-center gap-2">
           <span className="text-white font-semibold text-lg">
             Genres detected:
           </span>
-          {mood.map((genre) => (
+          {genres.map((genre) => (
             <span
               key={genre}
               className="bg-[#E50000] text-white text-sm font-medium px-3 py-1 rounded-full"
@@ -144,9 +144,9 @@ Example: Comedy, Romance, Drama
         </div>
       )}
 
-      <MovieList movies={movies} mood={mood} />
+      <MovieList movies={movies} genres={genres} loading={loading} />
     </div>
   );
 };
 
-export default MoodSelector;
+export default GenreSelector;

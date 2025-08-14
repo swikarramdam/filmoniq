@@ -1,5 +1,5 @@
 import { useState } from "react";
-import MoodSelector from "./MoodSelector";
+import GenreSelector from "./GenreSelector";
 import Home from "./Home";
 import MyMovies from "./MyMovies";
 
