@@ -15,7 +15,7 @@ const useSpeechRecognition = () => {
     const recognition = new SpeechRecognition();
     recognition.lang = "en-US";
     recognition.interimResults = true;
-    recognition.continuous = true;
+    recognition.continuous = false;
 
     recognition.onresult = (event) => {
       let result = "";
@@ -36,15 +36,8 @@ const useSpeechRecognition = () => {
     };
 
     recognition.onend = () => {
-      if (listening) {
-        try {
-          recognition.start();
-        } catch (e) {
-          console.error("Failed to restart recognition:", e);
-        }
-      }
+      setListening(false);
     };
-
     recognitionRef.current = recognition;
 
     if (listening) {
