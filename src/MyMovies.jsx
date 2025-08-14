@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 const STORAGE_KEY = "myMovies";
+import MovieModal from "./MovieModal";
 
 const MyMovies = () => {
   const [movies, setMovies] = useState([]);
@@ -7,6 +8,7 @@ const MyMovies = () => {
     const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
     setMovies(stored);
   }, []);
+  const [selectedMovie, setSelectedMovie] = useState(null);
 
   const removeFromMyList = (id) => {
     const updated = movies.filter((movie) => movie.id !== id);
@@ -29,6 +31,7 @@ const MyMovies = () => {
         {movies.map((movie) => (
           <div
             key={movie.id}
+            onClick={() => setSelectedMovie(movie)}
             className="rounded-lg bg-[#1E1E1E] border border-[#333333] p-4 shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 min-h-[600px] flex flex-col"
           >
             <h3 className="mb-3 text-lg font-semibold text-white">
@@ -56,6 +59,19 @@ const MyMovies = () => {
           </div>
         ))}
       </div>
+
+      {selectedMovie && (
+        <MovieModal
+          movie={selectedMovie}
+          onClose={() => setSelectedMovie(null)}
+          onAction={() => {
+            removeFromMyList(selectedMovie.id);
+            setSelectedMovie(null); // optional: close modal after removing
+          }}
+          actionText="Remove"
+          actionClass="bg-red-600 hover:bg-red-700"
+        />
+      )}
     </div>
   );
 };
