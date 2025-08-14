@@ -16,14 +16,14 @@ const MyMovies = () => {
 
   if (movies.length === 0) {
     return (
-      <div className="mx-auto max-w-6xl w-full p-4 sm:p-">
+      <div className="mx-auto max-w-6xl w-full p-4 sm:p-6">
         <h1 className="text-xl font-bold">My Movies</h1>
         <p className="text-gray-600 mt-2">No Movies saved yet</p>
       </div>
     );
   }
   return (
-    <div className="p-mx-auto max-w-6xl p-4 sm:p-6">
+    <div className="mx-auto max-w-6xl p-4 sm:p-6">
       <h1 className="text-xl font-bold">My Movies</h1>
       <div className="mt-6 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {movies.map((movie) => (

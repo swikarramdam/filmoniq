@@ -39,7 +39,6 @@ const useSpeechRecognition = () => {
       if (listening) {
         try {
           recognition.start();
-          listening;
         } catch (e) {
           console.error("Failed to restart recognition:", e);
         }

@@ -3,8 +3,6 @@ import MoodSelector from "./MoodSelector";
 import Home from "./Home";
 import MyMovies from "./MyMovies";
 
-// const [transcript, setTranscript] = useState("");
-
 import "./index.css";
 import {
   BrowserRouter as Router,
@@ -20,8 +18,8 @@ function App() {
       <div className="min-h-screen bg-[#141414] text-white">
         <nav className="bg-[#141414] p-4 sm:px-8 sm:py-4 shadow-lg border-b border-[#333333] sticky top-0 z-50 flex justify-between items-center">
           <div
-            className="bg-gradient-to-r from-[#FF0000] to-[#FF5555] bg-clip-text text-transparent font-extrabold text-2xl tracking-wider drop-shadow-xl select-none"
-            // onClick={Navigate("/")}
+            className="bg-gradient-to-r from-[#FF0000] to-[#FF5555] bg-clip-text text-transparent font-extrabold text-2xl tracking-wider drop-shadow-xl select-none cursor-pointer"
+            onClick={() => (window.location.href = "/")}
           >
             Filmoniq
           </div>
