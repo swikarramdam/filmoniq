@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 const STORAGE_KEY = "myMovies";
+import MovieModal from "./MovieModal";
 
 const MyMovies = () => {
   const [movies, setMovies] = useState([]);
@@ -58,53 +59,18 @@ const MyMovies = () => {
           </div>
         ))}
       </div>
+
       {selectedMovie && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
-          onClick={() => setSelectedMovie(null)} // click outside closes modal
-        >
-          <div
-            className="bg-[#141414] text-white rounded-lg p-6 max-w-3xl w-full overflow-y-auto relative flex gap-6"
-            onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside
-          >
-            {/* Left: Poster */}
-            {selectedMovie.poster_path && (
-              <img
-                src={`https://image.tmdb.org/t/p/w500${selectedMovie.poster_path}`}
-                alt={selectedMovie.title}
-                className="rounded-lg w-1/3 h-auto object-cover"
-              />
-            )}
-
-            {/* Right: Details */}
-            <div className="flex-1 flex flex-col">
-              {/* Close button */}
-              <button
-                onClick={() => setSelectedMovie(null)}
-                className="absolute top-2 right-2 text-red-500 text-2xl"
-              >
-                ×
-              </button>
-
-              <h2 className="text-3xl font-bold mb-4">{selectedMovie.title}</h2>
-              <p className="mb-2 font-medium">
-                Rating: {selectedMovie.vote_average.toFixed(1)} ⭐
-              </p>
-              <p className="text-gray-300 mb-4">{selectedMovie.overview}</p>
-
-              {/* Remove button */}
-              <button
-                onClick={() => {
-                  removeFromMyList(selectedMovie.id);
-                  setSelectedMovie(null); // close modal after remove
-                }}
-                className="w-full rounded-lg px-4 py-2 bg-red-600 hover:bg-red-700 text-white transition-all duration-200"
-              >
-                Remove
-              </button>
-            </div>
-          </div>
-        </div>
+        <MovieModal
+          movie={selectedMovie}
+          onClose={() => setSelectedMovie(null)}
+          onAction={() => {
+            removeFromMyList(selectedMovie.id);
+            setSelectedMovie(null); // optional: close modal after removing
+          }}
+          actionText="Remove"
+          actionClass="bg-red-600 hover:bg-red-700"
+        />
       )}
     </div>
   );
